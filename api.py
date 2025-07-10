@@ -23,16 +23,16 @@ def load_models():
     except Exception as e:
         print(f"❌ Failed to load models: {e}")
 
-# Test route
+# Root route
 @app.get("/")
 def home():
     return {"message": "API is running locally!"}
 
-# Request body structure
+# Request schema
 class InputData(BaseModel):
     text: str
 
-# Prediction route
+# Predict route
 @app.post("/predict")
 def predict(data: InputData):
     if not pipeline or not mlb:
@@ -42,6 +42,7 @@ def predict(data: InputData):
         input_text = data.text
         prediction = pipeline.predict([input_text])
         tags = mlb.inverse_transform(prediction)
-        return {"tags": tags[0] if tags else []}
+        clean_tags = list(tags[0]) if tags else []
+        return {"tags": clean_tags}  # ✅ returns clean output: list of tags
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {e}")
